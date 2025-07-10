@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriSmart - Smart Farming Solutions</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f8f9fa;color:#333}
+.navbar{background:#2d5016;color:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+.logo{font-size:1.5rem;font-weight:bold;display:flex;align-items:center;gap:0.5rem}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{color:white;text-decoration:none;padding:0.5rem 1rem;border-radius:5px;transition:background 0.3s;cursor:pointer}
+.nav-links a:hover,.nav-links a.active{background:rgba(255,255,255,0.2)}
+.user-info{display:flex;align-items:center;gap:1rem}
+.logout-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.5rem 1rem;border-radius:5px;cursor:pointer;transition:all 0.3s}
+.logout-btn:hover{background:rgba(255,255,255,0.3)}
+.main{max-width:1200px;margin:2rem auto;padding:0 1rem}
+.hero{background:linear-gradient(135deg,rgba(76,175,80,0.9),rgba(45,80,22,0.9)),url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;color:white;padding:3rem 2rem;border-radius:15px;text-align:center;margin-bottom:2rem}
+.hero h1{font-size:2.5rem;margin-bottom:1rem}
+.hero p{font-size:1.2rem;opacity:0.9}
+.section{background:white;border-radius:10px;padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+.section h2{color:#2d5016;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.agri-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1rem}
+.agri-image{border-radius:10px;overflow:hidden;position:relative;height:150px;background-size:cover;background-position:center;cursor:pointer;transition:transform 0.3s}
+.agri-image:hover{transform:scale(1.05)}
+.agri-image::after{content:attr(data-title);position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.8));color:white;padding:1rem 0.5rem 0.5rem;font-size:0.9rem;font-weight:600}
+.predictor{background:linear-gradient(135deg,#e8f5e8,#f0f8f0);border:2px solid #4CAF50;border-radius:10px;padding:1.5rem}
+.predictor-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+.form-group{display:flex;flex-direction:column}
+.form-group label{font-weight:600;margin-bottom:0.5rem;color:#2d5016}
+.form-group input,.form-group select{padding:0.8rem;border:2px solid #ddd;border-radius:8px;font-size:1rem}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#4CAF50}
+.predict-btn{background:#4CAF50;color:white;padding:1rem 2rem;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:all 0.3s}
+.predict-btn:hover{background:#45a049;transform:translateY(-2px)}
+.prediction-result{background:white;border-radius:8px;padding:1.5rem;margin-top:1rem;border-left:4px solid #4CAF50;display:none}
+.prediction-crop{font-size:1.2rem;font-weight:bold;color:#2d5016;margin-bottom:0.5rem}
+.prediction-details{color:#666;line-height:1.4;margin-bottom:1rem}
+.confidence-badge{background:#4CAF50;color:white;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.85rem;font-weight:bold;margin-left:0.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}
+.card{background:#f8f9fa;padding:1rem;border-radius:8px;border-left:4px solid #4CAF50;text-align:center}
+.card-title{font-weight:bold;color:#2d5016;margin-bottom:0.5rem;font-size:0.9rem}
+.card-value{font-size:1.2rem;color:#27ae60;font-weight:bold}
+.market-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem}
+.market-item{background:#f8f9fa;padding:1rem;border-radius:8px;text-align:center}
+.market-crop{font-weight:bold;color:#2d5016;margin-bottom:0.5rem;font-size:0.9rem}
+.market-price{color:#27ae60;font-weight:bold;margin-bottom:0.3rem}
+.market-change{font-size:0.8rem}
+.up{color:#27ae60}.down{color:#e74c3c}
+.hidden{display:none}
+.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.8)}
+.modal-content{position:relative;margin:5% auto;width:90%;max-width:800px;background:white;border-radius:10px;padding:2rem}
+.close{position:absolute;top:10px;right:20px;font-size:2rem;cursor:pointer;color:#666}
+.close:hover{color:#000}
+.modal-image{width:100%;height:400px;object-fit:cover;border-radius:10px}
+.modal-title{font-size:1.5rem;color:#2d5016;margin-top:1rem;font-weight:bold}
+.modal-description{color:#666;margin-top:0.5rem;line-height:1.5}
+@media (max-width:768px){.navbar{flex-direction:column;gap:1rem}.nav-links{gap:1rem}.main{padding:0 0.5rem}.hero{padding:2rem 1rem}.hero h1{font-size:2rem}.predictor-form{grid-template-columns:1fr}.grid,.market-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<nav class="navbar">
+<div class="logo"><i class="fas fa-leaf"></i> AgriSmart</div>
+<div class="nav-links">
+<a href="#" onclick="showSection('home')" class="active">🏠 Home</a>
+<a href="#" onclick="showSection('predictor')">🤖 Crop Predictor</a>
+<a href="#" onclick="showSection('market')">💰 Market</a>
+<a href="#" onclick="showSection('weather')">🌤️ Weather</a>
+<a href="#" onclick="showSection('news')">📰 News</a>
+<a href="#" onclick="showSection('profile')">👤 Profile</a>
+</div>
+<div class="user-info">
+<select id="languageSelect" onchange="changeLanguage()" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.5rem;border-radius:5px;margin-right:1rem">
+<option value="en">🇺🇸 English</option>
+<option value="hi">🇮🇳 हिंदी</option>
+<option value="te">🇮🇳 తెలుగు</option>
+</select>
+<span id="userName">Welcome!</span>
+<button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+</div>
+</nav>
+
+<main class="main">
+<div id="home" class="section-content">
+<div class="hero">
+<h1><i class="fas fa-leaf"></i> Welcome to AgriSmart</h1>
+<p>Your AI-powered agricultural management platform for smart farming decisions</p>
+</div>
+<div class="section">
+<h2><i class="fas fa-images"></i> Smart Agriculture Gallery</h2>
+<div class="agri-gallery" id="agriGallery">
+<!-- Gallery will be populated dynamically with real agriculture techniques -->
+</div>
+</div>
+<div class="section">
+<h2><i class="fas fa-chart-line"></i> Today's Farm Overview</h2>
+<div class="grid">
+<div class="card">
+<div class="card-title">Temperature</div>
+<div class="card-value" id="temp">28°C</div>
+</div>
+<div class="card">
+<div class="card-title">Soil Moisture</div>
+<div class="card-value">75%</div>
+</div>
+<div class="card">
+<div class="card-title">Rainfall</div>
+<div class="card-value">85mm</div>
+</div>
+<div class="card">
+<div class="card-title">Land Quality</div>
+<div class="card-value">8.2/10</div>
+</div>
+<div class="card">
+<div class="card-title">Most Grown Crop</div>
+<div class="card-value">Rice</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="predictor" class="section-content hidden">
+<div class="section">
+<h2><i class="fas fa-brain"></i> AI Crop Prediction</h2>
+<div class="predictor">
+<div class="predictor-form">
+<div class="form-group">
+<label id="soilPhLabel">Soil pH Level</label>
+<input type="number" id="soilPh" min="4" max="9" step="0.1" placeholder="6.5">
+</div>
+<div class="form-group">
+<label id="soilMoistureLabel">Soil Moisture (%)</label>
+<input type="number" id="soilMoisture" min="0" max="100" placeholder="65">
+</div>
+<div class="form-group">
+<label id="temperatureLabel">Temperature (°C)</label>
+<input type="number" id="temperature" min="0" max="50" placeholder="28">
+</div>
+<div class="form-group">
+<label id="humidityLabel">Humidity (%)</label>
+<input type="number" id="humidity" min="0" max="100" placeholder="70">
+</div>
+<div class="form-group">
+<label id="rainfallLabel">Annual Rainfall (mm)</label>
+<input type="number" id="rainfall" min="0" max="2000" placeholder="850">
+</div>
+<div class="form-group">
+<label id="soilTypeLabel">Soil Type</label>
+<select id="soilType">
+<option value="" id="selectSoilOption">Select soil type</option>
+<option value="loamy" id="loamyOption">Loamy</option>
+<option value="clay" id="clayOption">Clay</option>
+<option value="sandy" id="sandyOption">Sandy</option>
+<option value="silt" id="siltOption">Silt</option>
+</select>
+</div>
+</div>
+<button class="predict-btn" onclick="predictCrop()"><i class="fas fa-magic"></i> Predict Best Crop</button>
+<div id="predictionResult" class="prediction-result"></div>
+</div>
+</div>
+</div>
+
+<div id="market" class="section-content hidden">
+<div class="section">
+<h2><i class="fas fa-rupee-sign"></i> Live Market Prices</h2>
+<div class="market-grid" id="marketGrid">
+<!-- Market prices will be updated dynamically -->
+</div>
+</div>
+</div>
+
+<div id="weather" class="section-content hidden">
+<div class="section">
+<h2><i class="fas fa-cloud-sun"></i> Weather & Climate Data</h2>
+<div class="grid">
+<div class="card">
+<div class="card-title" id="weatherTempCard">Temperature</div>
+<div class="card-value" id="weather-temp">28°C</div>
+</div>
+<div class="card">
+<div class="card-title" id="weatherHumidityCard">Humidity</div>
+<div class="card-value" id="humidity">65%</div>
+</div>
+<div class="card">
+<div class="card-title" id="weatherWindCard">Wind Speed</div>
+<div class="card-value" id="wind">12 km/h</div>
+</div>
+<div class="card">
+<div class="card-title" id="weatherRainfallCard">Average Rainfall</div>
+<div class="card-value">850mm</div>
+</div>
+<div class="card">
+<div class="card-title" id="weatherLandCard">Land Quality</div>
+<div class="card-value" id="landQualityValue">Good</div>
+</div>
+<div class="card">
+<div class="card-title" id="weatherForecastCard">Forecast</div>
+<div class="card-value" id="forecastValue">Partly Cloudy</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="news" class="section-content hidden">
+<div class="section">
+<h2><i class="fas fa-newspaper"></i> Agricultural News & Updates</h2>
+<div id="newsContainer">
+<!-- News will be updated dynamically -->
+</div>
+</div>
+</div>
+
+<div id="profile" class="section-content hidden">
+<div class="section">
+<h2><i class="fas fa-user"></i> Farmer Profile</h2>
+<div class="grid" style="grid-template-columns:1fr 2fr;gap:2rem">
+<div class="card" style="padding:2rem;text-align:center">
+<div style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#4CAF50,#2d5016);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center">
+<i class="fas fa-user" style="font-size:3rem;color:white"></i>
+</div>
+<h3 id="profileName" style="color:#2d5016;margin-bottom:0.5rem">Farmer Name</h3>
+<p style="color:#666;font-size:0.9rem">Agricultural Professional</p>
+</div>
+<div class="card" style="padding:2rem">
+<h3 style="color:#2d5016;margin-bottom:1rem">Personal Information</h3>
+<div style="display:grid;gap:1rem">
+<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee">
+<strong>Full Name:</strong>
+<span id="profileFullName">-</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee">
+<strong>Email:</strong>
+<span id="profileEmail">-</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee">
+<strong>Phone:</strong>
+<span id="profilePhone">+91 9876543210</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee">
+<strong>Location:</strong>
+<span id="profileLocation">Andhra Pradesh, India</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee">
+<strong>Farm Size:</strong>
+<span>25 Acres</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #eee">
+<strong>Farming Experience:</strong>
+<span>12 Years</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:0.5rem 0">
+<strong>Primary Crops:</strong>
+<span>Rice, Cotton, Sugarcane</span>
+</div>
+</div>
+<button style="background:#4CAF50;color:white;border:none;padding:1rem 2rem;border-radius:8px;margin-top:1rem;cursor:pointer" onclick="editProfile()">
+<i class="fas fa-edit"></i> Edit Profile
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+<!-- Image Modal -->
+<div id="imageModal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeModal()">&times;</span>
+<img id="modalImage" class="modal-image" src="" alt="">
+<h3 id="modalTitle" class="modal-title"></h3>
+<p id="modalDescription" class="modal-description"></p>
+</div>
+</div>
+
+<script>
+if(!localStorage.getItem('currentUser'))window.location.href='index.html';
+const user=JSON.parse(localStorage.getItem('currentUser'));
+function updateWelcomeMessage(){
+const savedLang=localStorage.getItem('language')||'en';
+const welcomeText=translations[savedLang]?.welcome||'Welcome';
+if(user&&user.name){
+document.getElementById('userName').textContent=`${welcomeText}, ${user.name}!`;
+}else{
+document.getElementById('userName').textContent=`${welcomeText}, Farmer!`;
+}
+}
+updateWelcomeMessage();
+function logout(){localStorage.removeItem('currentUser');window.location.href='index.html'}
+function showSection(section){
+document.querySelectorAll('.section-content').forEach(s=>s.classList.add('hidden'));
+document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+document.getElementById(section).classList.remove('hidden');
+event.target.classList.add('active');
+}
+function predictCrop(){
+const ph=parseFloat(document.getElementById('soilPh').value);
+const moisture=parseFloat(document.getElementById('soilMoisture').value);
+const temp=parseFloat(document.getElementById('temperature').value);
+const humidity=parseFloat(document.getElementById('humidity').value);
+const rainfall=parseFloat(document.getElementById('rainfall').value);
+const soilType=document.getElementById('soilType').value;
+if(!ph||!moisture||!temp||!humidity||!rainfall||!soilType){
+alert('Please fill all fields for accurate prediction');return;
+}
+let crop,confidence,details;
+const score=ph*0.15+moisture*0.2+temp*0.15+humidity*0.1+rainfall*0.25+(soilType==='loamy'?15:soilType==='clay'?10:5)*0.15;
+if(score>=85&&temp>=25&&temp<=35&&moisture>=60&&rainfall>=600){
+crop='🌾 Soybean';confidence=Math.min(95,85+Math.random()*10);
+details='Optimal conditions for soybean cultivation. Expected yield: 22-26 quintals/acre. Plant within 10-15 days for best results.';
+}else if(score>=75&&temp>=20&&temp<=30&&moisture>=50){
+crop='🌽 Maize';confidence=Math.min(90,75+Math.random()*15);
+details='Good conditions for maize farming. Expected yield: 18-22 quintals/acre. Consider hybrid varieties for better disease resistance.';
+}else if(score>=70&&rainfall>=800&&humidity>=70){
+crop='🌾 Rice';confidence=Math.min(88,70+Math.random()*18);
+details='Suitable for rice cultivation. Expected yield: 20-24 quintals/acre. Ensure proper water management throughout growing season.';
+}else if(temp>=15&&temp<=25&&ph>=6&&ph<=7.5){
+crop='🌾 Wheat';confidence=Math.min(85,65+Math.random()*20);
+details='Moderate conditions for wheat farming. Expected yield: 16-20 quintals/acre. Best planted in winter season.';
+}else{
+crop='🥬 Vegetables';confidence=Math.min(80,60+Math.random()*20);
+details='Current conditions favor vegetable cultivation. Consider seasonal vegetables based on local market demand.';
+}
+document.getElementById('predictionResult').innerHTML=`
+<div class="prediction-crop">${crop}<span class="confidence-badge">${Math.round(confidence)}% Match</span></div>
+<div class="prediction-details">${details}</div>
+<div class="crop-image-container" style="text-align:center;margin:1rem 0">
+<img src="${getCropImage(crop)}" alt="${crop}" style="width:150px;height:150px;object-fit:cover;border-radius:10px;box-shadow:0 4px 8px rgba(0,0,0,0.2)">
+<p style="margin-top:0.5rem;font-size:0.9rem;color:#666">Recommended Crop: ${crop}</p>
+</div>
+<div style="margin-top:1rem;padding:1rem;background:#f8f9fa;border-radius:8px">
+<strong>Analysis Summary:</strong><br>
+Soil pH: ${ph} (${ph>=6.5&&ph<=7.5?'Optimal':'Adjustable'}), 
+Moisture: ${moisture}% (${moisture>=60?'Good':'Needs irrigation'}), 
+Temperature: ${temp}°C (${temp>=20&&temp<=35?'Suitable':'Monitor closely'})
+</div>`;
+document.getElementById('predictionResult').style.display='block';
+}
+function openModal(element){
+const imageSrc=element.style.backgroundImage.slice(5,-2);
+const title=element.getAttribute('data-title');
+const description=element.getAttribute('data-description') || 'Agricultural technique information';
+
+document.getElementById('modalImage').src=imageSrc;
+document.getElementById('modalTitle').textContent=title;
+document.getElementById('modalDescription').textContent=description;
+document.getElementById('imageModal').style.display='block';
+}
+function closeModal(){document.getElementById('imageModal').style.display='none';}
+window.onclick=function(event){if(event.target==document.getElementById('imageModal')){closeModal();}}
+function changeLanguage(){
+const lang=document.getElementById('languageSelect').value;
+const translations={
+en:{
+welcome:'Welcome',home:'🏠 Home',predictor:'🤖 Crop Predictor',market:'💰 Market',weather:'🌤️ Weather',news:'📰 News',profile:'👤 Profile',
+heroTitle:'Welcome to AgriSmart',heroSubtitle:'Your AI-powered agricultural management platform for smart farming decisions',
+galleryTitle:'Smart Agriculture Gallery',farmOverview:'Today\'s Farm Overview',aiPrediction:'AI Crop Prediction',
+soilPh:'Soil pH Level',soilMoisture:'Soil Moisture (%)',temperature:'Temperature (°C)',humidity:'Humidity (%)',
+rainfall:'Annual Rainfall (mm)',soilType:'Soil Type',predictBtn:'Predict Best Crop',
+marketTitle:'Live Market Prices',weatherTitle:'Weather & Climate Data',newsTitle:'Agricultural News & Updates',
+profileTitle:'Farmer Profile',personalInfo:'Personal Information',fullName:'Full Name',email:'Email',
+phone:'Phone',location:'Location',farmSize:'Farm Size',experience:'Farming Experience',primaryCrops:'Primary Crops',
+editProfile:'Edit Profile',logout:'Logout',selectSoil:'Select soil type',loamy:'Loamy',clay:'Clay',sandy:'Sandy',silt:'Silt',
+forecast:'Forecast',windSpeed:'Wind Speed',avgRainfall:'Average Rainfall',landQuality:'Land Quality',
+mostGrown:'Most Grown Crop',professionalTitle:'Agricultural Professional',
+tempCard:'Temperature',moistureCard:'Soil Moisture',rainfallCard:'Rainfall',
+wheatCrop:'Wheat',riceCrop:'Rice',cottonCrop:'Cotton',soybeanCrop:'Soybean',maizeCrop:'Maize',sugarcaneCrop:'Sugarcane',
+good:'Good',partlyCloudy:'Partly Cloudy',humidityCard:'Humidity',windCard:'Wind Speed',weatherForecastCard:'Forecast',
+news1:'🌾 New Drought-Resistant Wheat Varieties Released',
+news1Content:'Scientists develop wheat strains that survive with 30% less water while maintaining high yields.',
+news2:'💰 Government Announces ₹50,000 Crore Agricultural Package',
+news2Content:'Major investment in rural infrastructure and modern farming equipment to boost productivity.',
+news3:'🚁 AI-Powered Pest Detection Drones Launch',
+news3Content:'New drone technology identifies crop diseases and pests with 95% accuracy using computer vision.',
+news4:'🌱 Organic Farming Subsidies Increased by 25%',
+news4Content:'Enhanced support for farmers transitioning to organic cultivation methods.'
+},
+hi:{
+welcome:'स्वागत है',home:'🏠 होम',predictor:'🤖 फसल पूर्वानुमान',market:'💰 बाजार',weather:'🌤️ मौसम',news:'📰 समाचार',profile:'👤 प्रोफ़ाइल',
+heroTitle:'एग्रीस्मार्ट में आपका स्वागत है',heroSubtitle:'स्मार्ट कृषि निर्णयों के लिए आपका AI-संचालित कृषि प्रबंधन प्लेटफॉर्म',
+galleryTitle:'स्मार्ट कृषि गैलरी',farmOverview:'आज का फार्म अवलोकन',aiPrediction:'AI फसल पूर्वानुमान',
+soilPh:'मिट्टी pH स्तर',soilMoisture:'मिट्टी की नमी (%)',temperature:'तापमान (°C)',humidity:'आर्द्रता (%)',
+rainfall:'वार्षिक वर्षा (mm)',soilType:'मिट्टी का प्रकार',predictBtn:'सर्वोत्तम फसल की भविष्यवाणी करें',
+marketTitle:'लाइव बाजार मूल्य',weatherTitle:'मौसम और जलवायु डेटा',newsTitle:'कृषि समाचार और अपडेट',
+profileTitle:'किसान प्रोफ़ाइल',personalInfo:'व्यक्तिगत जानकारी',fullName:'पूरा नाम',email:'ईमेल',
+phone:'फोन',location:'स्थान',farmSize:'फार्म का आकार',experience:'कृषि अनुभव',primaryCrops:'प्राथमिक फसलें',
+editProfile:'प्रोफ़ाइल संपादित करें',logout:'लॉग आउट',selectSoil:'मिट्टी का प्रकार चुनें',loamy:'दोमट',clay:'मिट्टी',sandy:'रेतीली',silt:'गाद',
+forecast:'पूर्वानुमान',windSpeed:'हवा की गति',avgRainfall:'औसत वर्षा',landQuality:'भूमि की गुणवत्ता',
+mostGrown:'सबसे अधिक उगाई जाने वाली फसल',professionalTitle:'कृषि पेशेवर',
+tempCard:'तापमान',moistureCard:'मिट्टी की नमी',rainfallCard:'वर्षा',
+wheatCrop:'गेहूं',riceCrop:'चावल',cottonCrop:'कपास',soybeanCrop:'सोयाबीन',maizeCrop:'मक्का',sugarcaneCrop:'गन्ना',
+good:'अच्छा',partlyCloudy:'आंशिक रूप से बादल',humidityCard:'आर्द्रता',windCard:'हवा की गति',weatherForecastCard:'पूर्वानुमान',
+news1:'🌾 नई सूखा प्रतिरोधी गेहूं किस्में जारी',
+news1Content:'वैज्ञानिकों ने गेहूं की किस्में विकसित की हैं जो 30% कम पानी के साथ जीवित रह सकती हैं और उच्च उत्पादन बनाए रख सकती हैं।',
+news2:'💰 सरकार ने ₹50,000 करोड़ कृषि पैकेज की घोषणा की',
+news2Content:'ग्रामीण बुनियादी ढांचे और आधुनिक कृषि उपकरणों में बड़ा निवेश उत्पादकता बढ़ाने के लिए।',
+news3:'🚁 AI-संचालित कीट जांच ड्रोन लॉन्च',
+news3Content:'नई ड्रोन तकनीक कंप्यूटर विज़न का उपयोग करके 95% सटीकता के साथ फसल रोगों और कीटों की पहचान कर सकती है।',
+news4:'🌱 जैविक खेती सब्सिडी में 25% की वृद्धि',
+news4Content:'जैविक खेती विधियों की ओर स्थानांतरित होने वाले किसानों के लिए बेहतर सहायता।'
+},
+te:{
+welcome:'స్వాగతం',home:'🏠 హోమ్',predictor:'🤖 పంట అంచనా',market:'💰 మార్కెట్',weather:'🌤️ వాతావరణం',news:'📰 వార్తలు',profile:'👤 ప్రొఫైల్',
+heroTitle:'అగ్రీస్మార్ట్‌కు స్వాగతం',heroSubtitle:'స్మార్ట్ వ్యవసాయ నిర్ణయాల కోసం మీ AI-శక్తితో కూడిన వ్యవసాయ నిర్వహణ వేదిక',
+galleryTitle:'స్మార్ట్ వ్యవసాయ గ్యాలరీ',farmOverview:'నేటి వ్యవసాయ స్థితి',aiPrediction:'AI పంట అంచనా',
+soilPh:'మట్టి pH స్థాయి',soilMoisture:'మట్టి తేమ (%)',temperature:'ఉష్ణోగ్రత (°C)',humidity:'తేమాశాతం (%)',
+rainfall:'వార్షిక వర్షపాతం (mm)',soilType:'మట్టి రకం',predictBtn:'ఉత్తమ పంట అంచనా వేయండి',
+marketTitle:'ప్రత్యక్ష మార్కెట్ ధరలు',weatherTitle:'వాతావరణ మరియు వాతావరణ డేటా',newsTitle:'వ్యవసాయ వార్తలు మరియు నవీకరణలు',
+profileTitle:'రైతు ప్రొఫైల్',personalInfo:'వ్యక్తిగత సమాచారం',fullName:'పూర్తి పేరు',email:'ఇమెయిల్',
+phone:'ఫోన్',location:'స్థానం',farmSize:'వ్యవసాయ పరిమాణం',experience:'వ్యవసాయ అనుభవం',primaryCrops:'ప్రధాన పంటలు',
+editProfile:'ప్రొఫైల్ సవరించండి',logout:'లాగ్ అవుట్',selectSoil:'మట్టి రకాన్ని ఎంచుకోండి',loamy:'లోమీ',clay:'బంకమట్టి',sandy:'ఇసుకరేణు',silt:'సిల్ట్',
+forecast:'అంచనా',windSpeed:'గాలి వేగం',avgRainfall:'సగటు వర్షపాతం',landQuality:'భూమి నాణ్యత',
+mostGrown:'ఎక్కువగా పండించే పంట',professionalTitle:'వ్యవసాయ వృత్తిపరుడు',
+tempCard:'ఉష్ణోగ్రత',moistureCard:'మట్టి తేమ',rainfallCard:'వర్షపాతం',
+wheatCrop:'గోధుమలు',riceCrop:'వరి',cottonCrop:'పత్తి',soybeanCrop:'సోయాబీన్',maizeCrop:'మొక్కజొన్న',sugarcaneCrop:'చెరకు',
+good:'మంచి',partlyCloudy:'పాక్షికంగా మేఘావృతం',humidityCard:'తేమాశాతం',windCard:'గాలి వేగం',weatherForecastCard:'అంచనా',
+news1:'🌾 కొత్త కరువు నిరోధక గోధుమ రకాలు విడుదల',
+news1Content:'శాస్త్రవేత్తలు 30% తక్కువ నీటితో జీవించగలిగే మరియు అధిక దిగుబడిని కొనసాగించే గోధుమ రకాలను అభివృద్ధి చేశారు.',
+news2:'💰 ప్రభుత్వం ₹50,000 కోట్ల వ్యవసాయ ప్యాకేజీని ప్రకటించింది',
+news2Content:'ఉత్పాదకతను పెంచడానికి గ్రామీణ మౌలిక సదుపాయాలు మరియు ఆధునిక వ్యవసాయ పరికరాలలో పెద్ద పెట్టుబడి.',
+news3:'🚁 AI-శక్తితో కూడిన కీట గుర్తింపు డ్రోన్లు లాంచ్',
+news3Content:'కొత్త డ్రోన్ సాంకేతికత కంప్యూటర్ విజన్ ఉపయోగించి 95% ఖచ్చితత్వంతో పంట వ్యాధులు మరియు కీటకాలను గుర్తించగలదు.',
+news4:'🌱 సేంద్రీయ వ్యవసాయ సబ్సిడీలు 25% పెరుగుతాయి',
+news4Content:'సేంద్రీయ వ్యవసాయ పద్ధతులకు మారుతున్న రైతులకు మెరుగైన మద్దతు.'
+}
+};
+localStorage.setItem('language',lang);
+if(translations[lang]){
+const t=translations[lang];
+document.querySelectorAll('.nav-links a').forEach((link,index)=>{
+const keys=['home','predictor','market','weather','news','profile'];
+if(keys[index])link.textContent=t[keys[index]];
+});
+document.querySelector('.hero h1').innerHTML=`<i class="fas fa-leaf"></i> ${t.heroTitle}`;
+document.querySelector('.hero p').textContent=t.heroSubtitle;
+document.querySelector('#home .section h2').innerHTML=`<i class="fas fa-images"></i> ${t.galleryTitle}`;
+document.querySelector('#home .section:nth-child(3) h2').innerHTML=`<i class="fas fa-chart-line"></i> ${t.farmOverview}`;
+document.querySelector('#predictor .section h2').innerHTML=`<i class="fas fa-brain"></i> ${t.aiPrediction}`;
+document.querySelector('#market .section h2').innerHTML=`<i class="fas fa-rupee-sign"></i> ${t.marketTitle}`;
+document.querySelector('#weather .section h2').innerHTML=`<i class="fas fa-cloud-sun"></i> ${t.weatherTitle}`;
+document.querySelector('#news .section h2').innerHTML=`<i class="fas fa-newspaper"></i> ${t.newsTitle}`;
+document.querySelector('#profile .section h2').innerHTML=`<i class="fas fa-user"></i> ${t.profileTitle}`;
+document.querySelector('.logout-btn').innerHTML=`<i class="fas fa-sign-out-alt"></i> ${t.logout}`;
+document.getElementById('soilPhLabel').textContent=t.soilPh;
+document.getElementById('soilMoistureLabel').textContent=t.soilMoisture;
+document.getElementById('temperatureLabel').textContent=t.temperature;
+document.getElementById('humidityLabel').textContent=t.humidity;
+document.getElementById('rainfallLabel').textContent=t.rainfall;
+document.getElementById('soilTypeLabel').textContent=t.soilType;
+document.getElementById('selectSoilOption').textContent=t.selectSoil;
+document.getElementById('loamyOption').textContent=t.loamy;
+document.getElementById('clayOption').textContent=t.clay;
+document.getElementById('sandyOption').textContent=t.sandy;
+document.getElementById('siltOption').textContent=t.silt;
+document.querySelector('.predict-btn').innerHTML=`<i class="fas fa-magic"></i> ${t.predictBtn}`;
+document.querySelectorAll('.card-title')[0].textContent=t.tempCard;
+document.querySelectorAll('.card-title')[1].textContent=t.moistureCard;
+document.querySelectorAll('.card-title')[2].textContent=t.rainfallCard;
+document.querySelectorAll('.card-title')[3].textContent=t.landQuality;
+document.querySelectorAll('.card-title')[4].textContent=t.mostGrown;
+document.querySelectorAll('.market-crop')[0].textContent=t.wheatCrop;
+document.querySelectorAll('.market-crop')[1].textContent=t.riceCrop;
+document.querySelectorAll('.market-crop')[2].textContent=t.cottonCrop;
+document.querySelectorAll('.market-crop')[3].textContent=t.soybeanCrop;
+document.querySelectorAll('.market-crop')[4].textContent=t.maizeCrop;
+document.querySelectorAll('.market-crop')[5].textContent=t.sugarcaneCrop;
+document.getElementById('weatherTempCard')?.textContent&&(document.getElementById('weatherTempCard').textContent=t.tempCard);
+document.getElementById('weatherHumidityCard')?.textContent&&(document.getElementById('weatherHumidityCard').textContent=t.humidityCard);
+document.getElementById('weatherWindCard')?.textContent&&(document.getElementById('weatherWindCard').textContent=t.windCard);
+document.getElementById('weatherRainfallCard')?.textContent&&(document.getElementById('weatherRainfallCard').textContent=t.avgRainfall);
+document.getElementById('weatherLandCard')?.textContent&&(document.getElementById('weatherLandCard').textContent=t.landQuality);
+document.getElementById('weatherForecastCard')?.textContent&&(document.getElementById('weatherForecastCard').textContent=t.weatherForecastCard);
+document.getElementById('landQualityValue')?.textContent&&(document.getElementById('landQualityValue').textContent=t.good);
+document.getElementById('forecastValue')?.textContent&&(document.getElementById('forecastValue').textContent=t.partlyCloudy);
+document.getElementById('news1Title')?.textContent&&(document.getElementById('news1Title').textContent=t.news1);
+document.getElementById('news1Content')?.textContent&&(document.getElementById('news1Content').textContent=t.news1Content);
+document.getElementById('news2Title')?.textContent&&(document.getElementById('news2Title').textContent=t.news2);
+document.getElementById('news2Content')?.textContent&&(document.getElementById('news2Content').textContent=t.news2Content);
+document.getElementById('news3Title')?.textContent&&(document.getElementById('news3Title').textContent=t.news3);
+document.getElementById('news3Content')?.textContent&&(document.getElementById('news3Content').textContent=t.news3Content);
+document.getElementById('news4Title')?.textContent&&(document.getElementById('news4Title').textContent=t.news4);
+document.getElementById('news4Content')?.textContent&&(document.getElementById('news4Content').textContent=t.news4Content);
+document.querySelector('#profile h3:nth-of-type(2)')?.textContent&&(document.querySelector('#profile h3:nth-of-type(2)').textContent=t.personalInfo);
+document.querySelector('#profile p')?.textContent&&(document.querySelector('#profile p').textContent=t.professionalTitle);
+document.querySelector('button[onclick="editProfile()"]').innerHTML=`<i class="fas fa-edit"></i> ${t.editProfile}`;
+updateWelcomeMessage();
+}
+}
+function editProfile(){
+const newPhone=prompt('Enter your phone number:',document.getElementById('profilePhone').textContent)||document.getElementById('profilePhone').textContent;
+const newLocation=prompt('Enter your location:',document.getElementById('profileLocation').textContent)||document.getElementById('profileLocation').textContent;
+document.getElementById('profilePhone').textContent=newPhone;
+document.getElementById('profileLocation').textContent=newLocation;
+const user=JSON.parse(localStorage.getItem('currentUser'));
+user.phone=newPhone;user.location=newLocation;
+localStorage.setItem('currentUser',JSON.stringify(user));
+alert('Profile updated successfully!');
+}
+function loadProfile(){
+const user=JSON.parse(localStorage.getItem('currentUser'));
+if(user){
+document.getElementById('profileName').textContent=user.name;
+document.getElementById('profileFullName').textContent=user.name;
+document.getElementById('profileEmail').textContent=user.email;
+document.getElementById('profilePhone').textContent=user.phone||'+91 9876543210';
+document.getElementById('profileLocation').textContent=user.location||'Andhra Pradesh, India';
+}
+}
+loadProfile();
+const savedLang=localStorage.getItem('language')||'en';
+document.getElementById('languageSelect').value=savedLang;
+changeLanguage();
+
+// Force immediate initialization - Debug version
+console.log('Starting initialization...');
+
+// Dynamic Agriculture Gallery with Real Techniques
+function initializeAgricultureGallery() {
+    console.log('Initializing gallery...');
+    const techniques = [
+        {
+            title: "Precision Agriculture",
+            image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            description: "GPS-guided farming using sensors and data analytics to optimize field-level management with variable rate technology for seeds, fertilizers, and pesticides."
+        },
+        {
+            title: "Drip Irrigation",
+            image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            description: "Water-efficient irrigation method that delivers water directly to plant roots, reducing water waste by 30-50% compared to traditional sprinkler systems."
+        },
+        {
+            title: "Hydroponics",
+            image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            description: "Soilless cultivation technique growing plants in nutrient-rich water solutions for higher yields in controlled environments with minimal space requirements."
+        },
+        {
+            title: "Vertical Farming",
+            image: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            description: "Multi-layer crop production in vertically stacked layers, maximizing space efficiency and enabling year-round production in urban environments."
+        },
+        {
+            title: "Organic Farming",
+            image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            description: "Sustainable farming without synthetic pesticides or fertilizers, promoting soil health, biodiversity, and environmental conservation."
+        },
+        {
+            title: "Greenhouse Technology",
+            image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            description: "Climate-controlled environment for optimal crop growth with protection from weather extremes, pests, and diseases while extending growing seasons."
+        },
+        {
+            title: "Crop Rotation",
+            image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            description: "Systematic sequence of different crops on the same land to improve soil fertility, reduce pest buildup, and break disease cycles naturally."
+        },
+        {
+            title: "Agroforestry",
+            image: "https://images.unsplash.com/photo-1560493676-04071c5f467b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            description: "Integration of trees with crops and livestock for improved productivity, soil conservation, carbon sequestration, and enhanced biodiversity."
+        }
+    ];
+
+    const gallery = document.getElementById('agriGallery');
+    if (gallery) {
+        console.log('Gallery element found, populating...');
+        gallery.innerHTML = techniques.map(tech => `
+            <div class="agri-image" style="background-image:url('${tech.image}')" 
+                 data-title="${tech.title}" 
+                 data-description="${tech.description}"
+                 onclick="openModal(this)">
+            </div>
+        `).join('');
+        console.log('Gallery populated with', techniques.length, 'items');
+    } else {
+        console.error('Gallery element not found!');
+    }
+}
+
+// Market Price Updates
+let marketPrices = {
+    wheat: { base: 2150, current: 2150 },
+    rice: { base: 2850, current: 2850 },
+    cotton: { base: 5200, current: 5200 },
+    soybean: { base: 4100, current: 4100 },
+    maize: { base: 1950, current: 1950 },
+    sugarcane: { base: 280, current: 280 }
+};
+
+function updateMarketPrices() {
+    console.log('Updating market prices...');
+    const crops = ['wheat', 'rice', 'cotton', 'soybean', 'maize', 'sugarcane'];
+    const cropNames = ['Wheat', 'Rice', 'Cotton', 'Soybean', 'Maize', 'Sugarcane'];
+
+    crops.forEach(crop => {
+        const change = (Math.random() - 0.5) * 0.08; // -4% to +4% change
+        marketPrices[crop].current = Math.round(marketPrices[crop].current * (1 + change));
+    });
+
+    const marketGrid = document.getElementById('marketGrid');
+    if (marketGrid) {
+        console.log('Market grid found, updating...');
+        marketGrid.innerHTML = crops.map((crop, index) => {
+            const price = marketPrices[crop];
+            const changePercent = ((price.current - price.base) / price.base * 100).toFixed(1);
+            const isUp = changePercent >= 0;
+            return `
+                <div class="market-item">
+                    <div class="market-crop">${cropNames[index]}</div>
+                    <div class="market-price">₹${price.current}/q</div>
+                    <div class="market-change ${isUp ? 'up' : 'down'}">
+                        ${isUp ? '↑' : '↓'} ${isUp ? '+' : ''}${changePercent}%
+                    </div>
+                </div>
+            `;
+        }).join('');
+        console.log('Market prices updated');
+    } else {
+        console.error('Market grid element not found!');
+    }
+}
+
+// Dynamic News Updates
+const newsDatabase = [
+    {
+        title: "🌾 Revolutionary CRISPR Wheat Varieties Show 40% Higher Yields",
+        content: "New gene-edited wheat varieties demonstrate remarkable drought resistance and increased productivity in field trials across multiple states."
+    },
+    {
+        title: "💧 Smart Water Management Systems Reduce Irrigation Costs by 60%",
+        content: "IoT-based irrigation monitoring helps farmers optimize water usage with real-time soil moisture data and weather forecasting integration."
+    },
+    {
+        title: "🚁 Drone Technology Detects Crop Diseases 2 Weeks Earlier",
+        content: "AI-powered agricultural drones provide early disease detection using multispectral imaging, saving millions in crop losses annually."
+    },
+    {
+        title: "🌱 Vertical Farming Market Expected to Reach $20 Billion by 2026",
+        content: "Indoor farming facilities continue expanding globally, offering year-round production capabilities and 95% water savings compared to traditional farming."
+    },
+    {
+        title: "📱 Farm Management Apps Increase Productivity by 25%",
+        content: "Digital agriculture platforms help farmers make data-driven decisions for optimal crop management, weather monitoring, and supply chain coordination."
+    },
+    {
+        title: "🌿 Biofortified Crops Address Malnutrition in Rural Communities",
+        content: "Nutrient-enhanced varieties of staple crops provide essential vitamins and minerals, reducing iron and zinc deficiencies in developing regions."
+    },
+    {
+        title: "⚡ Solar-Powered Farming Equipment Reduces Operating Costs by 45%",
+        content: "Renewable energy solutions for agriculture gain traction as farmers seek sustainable alternatives to diesel-powered machinery and irrigation systems."
+    },
+    {
+        title: "🧬 Soil Microbiome Research Unlocks Natural Fertilizer Alternatives",
+        content: "Scientists develop beneficial bacteria cocktails that enhance plant growth and reduce chemical fertilizer dependency by 30% while improving soil health."
+    }
+];
+
+function updateNews() {
+    console.log('Updating news...');
+    const shuffled = [...newsDatabase].sort(() => Math.random() - 0.5);
+    const newsContainer = document.getElementById('newsContainer');
+    if (newsContainer) {
+        console.log('News container found, updating...');
+        newsContainer.innerHTML = shuffled.slice(0, 4).map(news => `
+            <div class="card" style="margin-bottom:1rem;padding:1rem">
+                <div class="card-title">${news.title}</div>
+                <div style="color:#666;margin-top:0.5rem">${news.content}</div>
+            </div>
+        `).join('');
+        console.log('News updated with', shuffled.slice(0, 4).length, 'items');
+    } else {
+        console.error('News container element not found!');
+    }
+}
+
+// Crop Images for Prediction Results
+function getCropImage(crop) {
+    const cropImages = {
+        '🌾 Soybean': 'https://images.unsplash.com/photo-1509719016326-7bd1b380b460?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+        '🌽 Maize': 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+        '🌾 Rice': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+        '🌾 Wheat': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+        '🥬 Vegetables': 'https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80'
+    };
+    return cropImages[crop] || 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80';
+}
+
+// Initialize immediately
+console.log('Calling initialization functions...');
+initializeAgricultureGallery();
+updateMarketPrices();
+updateNews();
+// Weather data arrays for more variety
+const weatherConditions = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain', 'Clear', 'Overcast'];
+const landQualities = ['Excellent', 'Good', 'Fair', 'Poor'];
+
+// Enhanced weather updates with more variety
+setInterval(()=>{
+const temp=Math.round(22+Math.random()*18); // 22-40°C range
+const humid=Math.round(45+Math.random()*40); // 45-85% range  
+const wind=Math.round(5+Math.random()*20); // 5-25 km/h range
+const forecast=weatherConditions[Math.floor(Math.random()*weatherConditions.length)];
+const landQuality=landQualities[Math.floor(Math.random()*landQualities.length)];
+
+document.getElementById('temp').textContent=`${temp}°C`;
+document.getElementById('weather-temp').textContent=`${temp}°C`;
+document.getElementById('humidity').textContent=`${humid}%`;
+document.getElementById('wind').textContent=`${wind} km/h`;
+document.getElementById('forecastValue').textContent=forecast;
+document.getElementById('landQualityValue').textContent=landQuality;
+},3000); // Update every 3 seconds
+
+// Set intervals for dynamic updates
+setInterval(updateMarketPrices, 12000); // Update market prices every 12 seconds
+setInterval(updateNews, 25000); // Update news every 25 seconds
+</script>
+</body>
+</html>
