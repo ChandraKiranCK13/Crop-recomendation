@@ -1,0 +1,28 @@
+{
+  "name": "agricultural-management-system",
+  "version": "1.0.0",
+  "description": "A web application for managing agricultural activities, including crop prediction, registration, and farm management.",
+  "main": "src/js/app.js",
+  "scripts": {
+    "start": "live-server public",
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "webpack": "^5.24.4",
+    "webpack-cli": "^4.5.0",
+    "live-server": "^1.2.1"
+  },
+  "keywords": [
+    "agriculture",
+    "management",
+    "crop",
+    "prediction"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
